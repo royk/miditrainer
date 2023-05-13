@@ -1,0 +1,61 @@
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <title>WebMidi.js Quick Start</title>
+    <script src="https://cdn.jsdelivr.net/npm/webmidi@latest/dist/iife/webmidi.iife.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/p5@1.6.0/lib/p5.js"></script>
+    <script>
+      function setup() {
+        createCanvas(254, 450)
+        frameRate(60);
+        colorMode(HSB);
+        angleMode(DEGREES);
+      }
+    </script>
+  </head>
+  
+  <body>
+    <select id="midi-inputs"></select>
+      
+  </body>
+
+  <script type="module">
+    let inputDevice;
+
+  // Enable WEBMIDI.js and trigger the onEnabled() function when ready
+  WebMidi
+    .enable()
+    .then(onEnabled)
+    .catch(err => alert(err));
+
+  // Function triggered when WEBMIDI.js is ready
+  function onEnabled() {
+    // add options to combobox
+    var inputSelect = document.getElementById("midi-inputs");
+    for (let i=0; i<WebMidi.inputs.length; i++) { 
+      const input = WebMidi.inputs[i];
+      var el = document.createElement("option");
+      el.textContent = input.name;
+      el.value = i;
+      inputSelect.appendChild(el);
+      
+      
+    }
+    // callback when combobox selection changes
+    inputSelect.addEventListener('change', (e) => {
+      inputDevice = WebMidi.inputs[e.target.value];
+      console.log(inputDevice.name);
+    });
+    
+
+  }
+
+
+
+  
+</script>
+
+
+
+</html>
