@@ -6,18 +6,34 @@
     <script src="https://cdn.jsdelivr.net/npm/webmidi@latest/dist/iife/webmidi.iife.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/p5@1.6.0/lib/p5.js"></script>
     <script>
+      window.velocities = [];
+      const canvasWidth = 250;
+      const canvasHeight = 450;
       function setup() {
-        createCanvas(254, 450)
+        createCanvas(canvasWidth, canvasHeight)
         frameRate(60);
         colorMode(HSB);
         angleMode(DEGREES);
+      }
+
+      function draw() {
+        background(0);
+        stroke(100);
+        for (let i = 0; i < window.velocities.length; i++) {
+          let velocity = window.velocities[i];
+          const boxSize = 250/7;
+          let x = i*boxSize%canvasWidth;
+          let y = floor(i*boxSize/canvasWidth)*boxSize;
+          fill(map(velocity, 0, 1, 10, 100));
+          rect(x, y, boxSize, boxSize);
+        }
       }
     </script>
   </head>
   
   <body>
     <select id="midi-inputs"></select>
-      
+    <button id="resetButton" onclick="window.velocities = []">Reset</button>
   </body>
 
   <script type="module">
@@ -31,6 +47,7 @@
 
   // Function triggered when WEBMIDI.js is ready
   function onEnabled() {
+    console.log('midiEnabled');
     // add options to combobox
     var inputSelect = document.getElementById("midi-inputs");
     for (let i=0; i<WebMidi.inputs.length; i++) { 
@@ -39,13 +56,16 @@
       el.textContent = input.name;
       el.value = i;
       inputSelect.appendChild(el);
-      
-      
     }
     // callback when combobox selection changes
     inputSelect.addEventListener('change', (e) => {
+      if (inputDevice) {
+        inputDevice.channels[1].removeListener();
+      }
       inputDevice = WebMidi.inputs[e.target.value];
-      console.log(inputDevice.name);
+      inputDevice.channels[1].addListener('noteon', e=> {
+        window.velocities.push(e.velocity);
+      });
     });
     
 
