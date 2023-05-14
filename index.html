@@ -7,6 +7,45 @@
     <script src="https://cdn.jsdelivr.net/npm/p5@1.6.0/lib/p5.js"></script>
     <script>
       window.velocities = [];
+      window.velocityMaps = [
+      {
+        name: 'Target velocity',
+        min: 0,
+        max: 127
+      },  
+      {
+        name: 'ppp',
+        min: 10,
+        max: 25
+      }, {
+        name: 'pp',
+        min: 25,
+        max: 40
+      }, {
+        name: 'p',
+        min: 40,
+        max: 55
+      }, {
+        name: 'mp',
+        min: 55,
+        max: 70
+      }, {
+        name: 'mf',
+        min: 70,
+        max: 85
+      }, {
+        name: 'f',
+        min: 85,
+        max: 105
+      }, {
+        name: 'ff',
+        min: 105,
+        max: 120
+      }, {
+        name: 'fff',
+        min: 115,
+        max: 127
+      }];
       const canvasWidth = 250;
       const canvasHeight = 450;
       function setup() {
@@ -33,11 +72,21 @@
   
   <body>
     <select id="midi-inputs"></select>
+    <select id="target-velocity"></select>
     <button id="resetButton" onclick="window.velocities = []">Reset</button>
   </body>
 
   <script type="module">
     let inputDevice;
+    // populate target velocity combobox
+    var targetVelocitySelect = document.getElementById("target-velocity");
+    for (let i=0; i<window.velocityMaps.length; i++) { 
+      const velocityMap = window.velocityMaps[i];
+      var el = document.createElement("option");
+      el.textContent = velocityMap.name;
+      el.value = i;
+      targetVelocitySelect.appendChild(el);
+    }
 
   // Enable WEBMIDI.js and trigger the onEnabled() function when ready
   WebMidi
