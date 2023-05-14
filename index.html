@@ -47,6 +47,7 @@
         max: 127
       }];
       window.selectedTargetVelocity = 0;
+      window.errorRoundRobin = 0;
       const canvasWidth = 250;
       const canvasHeight = 450;
       function setup() {
@@ -75,6 +76,7 @@
     <select id="midi-inputs"></select>
     <select id="target-velocity"></select>
     <button id="resetButton" onclick="window.velocities = []">Reset</button>
+    <p id="errorMessage"></p>
   </body>
 
   <script type="module">
@@ -118,11 +120,16 @@
       inputDevice = WebMidi.inputs[e.target.value];
       inputDevice.channels[1].addListener('noteon', e=> {
         window.velocities.push(e.velocity);
-        // play error sound if velocity is out of range
         const targetVelocity = window.velocityMaps[window.selectedTargetVelocity];
-        if (e.velocity < targetVelocity.min || e.velocity > targetVelocity.max) {
-          document.getElementById('error').play();
+        const midiVelocity = e.velocity*127;
+        let message = `${midiVelocity} (${targetVelocity.min}-${targetVelocity.max})`
+        // play error sound if velocity is out of range
+        if (midiVelocity < targetVelocity.min || midiVelocity > targetVelocity.max) {
+          document.getElementById(`error${errorRoundRobin}`).play();
+          errorRoundRobin = (errorRoundRobin+1)%4;
+          message = `Out of range: ${message}`;
         }
+        errorMessage.innerHTML = message;
       });
     });
     
@@ -133,6 +140,9 @@
 
   
 </script>
-<audio src="error.wav" id="error"></audio>
+<audio src="error.wav" id="error0"></audio>
+<audio src="error.wav" id="error1"></audio>
+<audio src="error.wav" id="error2"></audio>
+<audio src="error.wav" id="error3"></audio>
 
 </html>
