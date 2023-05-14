@@ -7,7 +7,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.min.js"></script>
     <script>
       window.velocities = [];
-      window.velocityMaps = [
+      window.velocityMaps = [{name: 'Hard', maps:[
       {
         name: 'Target velocity',
         min: 0,
@@ -45,8 +45,34 @@
         name: 'fff',
         min: 115,
         max: 127
+      }]}, {
+        name: 'Easy',
+        maps: [
+          {
+          name: 'Target velocity',
+          min: 0,
+          max: 127
+        },  
+        {
+          name: 'pp',
+          min: 0,
+          max: 40
+        }, {
+          name: 'p',
+          min: 40,
+          max: 70
+        }, {
+          name: 'f',
+          min: 70,
+          max: 100
+        }, {
+          name: 'ff',
+          min: 100,
+          max: 127
+        }]
       }];
       window.selectedTargetVelocity = 0;
+      window.selectedDifficulty = 0;
       window.errorRoundRobin = 0;
       const canvasWidth = 250;
       const canvasHeight = 450;
@@ -74,24 +100,44 @@
   
   <body>
     <select id="midi-inputs"></select>
+    <select id="difficulty"> </select>
     <select id="target-velocity"></select>
     <button id="resetButton" onclick="window.velocities = []">Reset</button>
     <p id="errorMessage"></p>
   </body>
 
   <script type="module">
+    function populateVelocityCombobox(difficulty) {
+      const velocityMap = window.velocityMaps[difficulty];
+      var targetVelocitySelect = document.getElementById("target-velocity");
+      targetVelocitySelect.innerHTML = '';
+      for (let i=0; i<velocityMap.maps.length; i++) { 
+        const map = velocityMap.maps[i];
+        var el = document.createElement("option");
+        el.textContent = map.name;
+        el.value = i;
+        targetVelocitySelect.appendChild(el);
+      }
+     
+    }
     let inputDevice;
-    // populate target velocity combobox
-    var targetVelocitySelect = document.getElementById("target-velocity");
+    // populate difficulty combobox
+    var difficultySelect = document.getElementById("difficulty");
     for (let i=0; i<window.velocityMaps.length; i++) { 
       const velocityMap = window.velocityMaps[i];
       var el = document.createElement("option");
       el.textContent = velocityMap.name;
       el.value = i;
-      targetVelocitySelect.appendChild(el);
+      difficultySelect.appendChild(el);
     }
-    targetVelocitySelect.addEventListener('change', (e) => {
-      window.selectedTargetVelocity = e.target.value;
+    // on difficulty change, populate target velocity combobox
+    difficultySelect.addEventListener('change', (e) => {
+      window.selectedDifficulty = e.target.value;
+      populateVelocityCombobox(window.selectedDifficulty);
+    });
+    populateVelocityCombobox(window.selectedDifficulty);
+    document.getElementById("target-velocity").addEventListener('change', (e) => {
+      window.selectedTargetVelocity = parseInt(e.target.value);
     });
 
   // Enable WEBMIDI.js and trigger the onEnabled() function when ready
@@ -123,7 +169,7 @@
           window.velocities.push(e.velocity*100);
           return;
         }
-        const targetVelocity = window.velocityMaps[window.selectedTargetVelocity];
+        const targetVelocity = window.velocityMaps[window.selectedDifficulty].maps[window.selectedTargetVelocity];
         const midiVelocity = e.velocity*127;
         let distanceFromTarget = 50;
         let message = `${midiVelocity} (${targetVelocity.min}-${targetVelocity.max})`
