@@ -135,72 +135,67 @@
       window.selectedDifficulty = e.target.value;
       populateVelocityCombobox(window.selectedDifficulty);
     });
+    // initialize target velocity combobox
     populateVelocityCombobox(window.selectedDifficulty);
     document.getElementById("target-velocity").addEventListener('change', (e) => {
       window.selectedTargetVelocity = parseInt(e.target.value);
     });
 
-  // Enable WEBMIDI.js and trigger the onEnabled() function when ready
-  WebMidi
-    .enable()
-    .then(onEnabled)
-    .catch(err => alert(err));
+    // Enable WEBMIDI.js and trigger the onEnabled() function when ready
+    WebMidi
+      .enable()
+      .then(onEnabled)
+      .catch(err => alert(err));
 
-  // Function triggered when WEBMIDI.js is ready
-  function onEnabled() {
-    console.log('midiEnabled');
-    // add options to combobox
-    var inputSelect = document.getElementById("midi-inputs");
-    for (let i=0; i<WebMidi.inputs.length; i++) { 
-      const input = WebMidi.inputs[i];
-      var el = document.createElement("option");
-      el.textContent = input.name;
-      el.value = i;
-      inputSelect.appendChild(el);
-    }
-    // callback when combobox selection changes
-    inputSelect.addEventListener('change', (e) => {
-      if (inputDevice) {
-        inputDevice.channels[1].removeListener();
+    // Function triggered when WEBMIDI.js is ready
+    function onEnabled() {
+      console.log('midiEnabled');
+      // add options to combobox
+      var inputSelect = document.getElementById("midi-inputs");
+      for (let i=0; i<WebMidi.inputs.length; i++) { 
+        const input = WebMidi.inputs[i];
+        var el = document.createElement("option");
+        el.textContent = input.name;
+        el.value = i;
+        inputSelect.appendChild(el);
       }
-      inputDevice = WebMidi.inputs[e.target.value];
-      inputDevice.channels[1].addListener('noteon', e=> {
-        if(window.selectedTargetVelocity==0) {
-          window.velocities.push(e.velocity*100);
-          return;
+      // callback when combobox selection changes
+      inputSelect.addEventListener('change', (e) => {
+        if (inputDevice) {
+          inputDevice.channels[1].removeListener();
         }
-        const targetVelocity = window.velocityMaps[window.selectedDifficulty].maps[window.selectedTargetVelocity];
-        const midiVelocity = e.velocity*127;
-        let distanceFromTarget = 50;
-        let message = `${midiVelocity} (${targetVelocity.min}-${targetVelocity.max})`
-        // play error sound if velocity is out of range
-        if (midiVelocity < targetVelocity.min || midiVelocity > targetVelocity.max) {
-          document.getElementById(`error${errorRoundRobin}`).play();
-          errorRoundRobin = (errorRoundRobin+1)%4;
-          
-          if (midiVelocity < targetVelocity.min) {
-            message = `Too low: ${message}`;
-            distanceFromTarget = 0;
-          } else {
-            message = `Too high: ${message}`;
-            distanceFromTarget = 100;
+        inputDevice = WebMidi.inputs[e.target.value];
+        inputDevice.channels[1].addListener('noteon', e=> {
+          if(window.selectedTargetVelocity==0) {
+            window.velocities.push(e.velocity*100);
+            return;
           }
-        }
-        window.velocities.push(distanceFromTarget);
-        errorMessage.innerHTML = message;
+          const targetVelocity = window.velocityMaps[window.selectedDifficulty].maps[window.selectedTargetVelocity];
+          const midiVelocity = e.velocity*127;
+          let distanceFromTarget = 50;
+          let message = `${midiVelocity} (${targetVelocity.min}-${targetVelocity.max})`
+          // play error sound if velocity is out of range
+          if (midiVelocity < targetVelocity.min || midiVelocity > targetVelocity.max) {
+            document.getElementById(`error${errorRoundRobin}`).play();
+            errorRoundRobin = (errorRoundRobin+1)%4;
+            
+            if (midiVelocity < targetVelocity.min) {
+              message = `Too low: ${message}`;
+              distanceFromTarget = 0;
+            } else {
+              message = `Too high: ${message}`;
+              distanceFromTarget = 100;
+            }
+          }
+          window.velocities.push(distanceFromTarget);
+          errorMessage.innerHTML = message;
+        });
       });
-    });
-    
-
-  }
-
-
-
-  
-</script>
-<audio src="error.wav" id="error0"></audio>
-<audio src="error.wav" id="error1"></audio>
-<audio src="error.wav" id="error2"></audio>
-<audio src="error.wav" id="error3"></audio>
+    }
+  </script>
+  <audio src="error.wav" id="error0"></audio>
+  <audio src="error.wav" id="error1"></audio>
+  <audio src="error.wav" id="error2"></audio>
+  <audio src="error.wav" id="error3"></audio>
 
 </html>
