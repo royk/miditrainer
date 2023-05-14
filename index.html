@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>WebMidi.js Quick Start</title>
     <script src="https://cdn.jsdelivr.net/npm/webmidi@latest/dist/iife/webmidi.iife.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/p5@1.6.0/lib/p5.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.min.js"></script>
     <script>
       window.velocities = [];
       window.velocityMaps = [
@@ -46,6 +46,7 @@
         min: 115,
         max: 127
       }];
+      window.selectedTargetVelocity = 0;
       const canvasWidth = 250;
       const canvasHeight = 450;
       function setup() {
@@ -87,6 +88,9 @@
       el.value = i;
       targetVelocitySelect.appendChild(el);
     }
+    targetVelocitySelect.addEventListener('change', (e) => {
+      window.selectedTargetVelocity = e.target.value;
+    });
 
   // Enable WEBMIDI.js and trigger the onEnabled() function when ready
   WebMidi
@@ -114,6 +118,11 @@
       inputDevice = WebMidi.inputs[e.target.value];
       inputDevice.channels[1].addListener('noteon', e=> {
         window.velocities.push(e.velocity);
+        // play error sound if velocity is out of range
+        const targetVelocity = window.velocityMaps[window.selectedTargetVelocity];
+        if (e.velocity < targetVelocity.min || e.velocity > targetVelocity.max) {
+          document.getElementById('error').play();
+        }
       });
     });
     
@@ -124,7 +133,6 @@
 
   
 </script>
-
-
+<audio src="error.wav" id="error"></audio>
 
 </html>
