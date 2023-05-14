@@ -7,7 +7,49 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.6.0/p5.min.js"></script>
     <script>
       window.velocities = [];
-      window.velocityMaps = [{name: 'Hard', maps:[
+      window.velocityMaps = [{
+        name: 'Easy',
+        maps: [
+          {
+          name: 'Target velocity',
+          min: 0,
+          max: 127
+        },  
+        {
+          name: 'p',
+          min: 0,
+          max: 70
+        }, {
+          name: 'f',
+          min: 70,
+          max: 127
+        }]
+      },{
+        name: 'Medium',
+        maps: [
+          {
+          name: 'Target velocity',
+          min: 0,
+          max: 127
+        },  
+        {
+          name: 'pp',
+          min: 0,
+          max: 40
+        }, {
+          name: 'p',
+          min: 40,
+          max: 70
+        }, {
+          name: 'f',
+          min: 70,
+          max: 100
+        }, {
+          name: 'ff',
+          min: 100,
+          max: 127
+        }]
+      },{name: 'Hard', maps:[
       {
         name: 'Target velocity',
         min: 0,
@@ -45,32 +87,7 @@
         name: 'fff',
         min: 115,
         max: 127
-      }]}, {
-        name: 'Easy',
-        maps: [
-          {
-          name: 'Target velocity',
-          min: 0,
-          max: 127
-        },  
-        {
-          name: 'pp',
-          min: 0,
-          max: 40
-        }, {
-          name: 'p',
-          min: 40,
-          max: 70
-        }, {
-          name: 'f',
-          min: 70,
-          max: 100
-        }, {
-          name: 'ff',
-          min: 100,
-          max: 127
-        }]
-      }];
+      }]}];
       window.selectedTargetVelocity = 0;
       window.selectedDifficulty = 0;
       window.errorRoundRobin = 0;
@@ -118,8 +135,8 @@
         el.value = i;
         targetVelocitySelect.appendChild(el);
       }
-     
     }
+
     let inputDevice;
     // populate difficulty combobox
     var difficultySelect = document.getElementById("difficulty");
