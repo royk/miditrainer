@@ -65,7 +65,7 @@
           const boxSize = 250/7;
           let x = i*boxSize%canvasWidth;
           let y = floor(i*boxSize/canvasWidth)*boxSize;
-          fill(map(velocity, 0, 1, 10, 100));
+          fill(velocity);
           rect(x, y, boxSize, boxSize);
         }
       }
@@ -119,16 +119,28 @@
       }
       inputDevice = WebMidi.inputs[e.target.value];
       inputDevice.channels[1].addListener('noteon', e=> {
-        window.velocities.push(e.velocity);
+        if(window.selectedTargetVelocity==0) {
+          window.velocities.push(e.velocity*100);
+          return;
+        }
         const targetVelocity = window.velocityMaps[window.selectedTargetVelocity];
         const midiVelocity = e.velocity*127;
+        let distanceFromTarget = 50;
         let message = `${midiVelocity} (${targetVelocity.min}-${targetVelocity.max})`
         // play error sound if velocity is out of range
         if (midiVelocity < targetVelocity.min || midiVelocity > targetVelocity.max) {
           document.getElementById(`error${errorRoundRobin}`).play();
           errorRoundRobin = (errorRoundRobin+1)%4;
-          message = `Out of range: ${message}`;
+          
+          if (midiVelocity < targetVelocity.min) {
+            message = `Too low: ${message}`;
+            distanceFromTarget = 0;
+          } else {
+            message = `Too high: ${message}`;
+            distanceFromTarget = 100;
+          }
         }
+        window.velocities.push(distanceFromTarget);
         errorMessage.innerHTML = message;
       });
     });
