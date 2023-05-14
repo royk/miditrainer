@@ -93,6 +93,7 @@
       window.errorRoundRobin = 0;
       const canvasWidth = 250;
       const canvasHeight = 450;
+      const notesPerScale = 7;
       function setup() {
         createCanvas(canvasWidth, canvasHeight)
         frameRate(60);
@@ -103,9 +104,22 @@
       function draw() {
         background(0);
         stroke(100);
+        let notesPerRow = 0;
+        let boxSize;
+        let visibleBoxes;
+        do {
+          notesPerRow+=notesPerScale;
+          boxSize = canvasWidth/notesPerRow;
+          visibleBoxes = floor(canvasHeight/boxSize)*notesPerRow;
+          if (boxSize<=5) {
+            noStroke();
+            break;
+          }
+        } while(visibleBoxes <= window.velocities.length)
+        
         for (let i = 0; i < window.velocities.length; i++) {
           let velocity = window.velocities[i];
-          const boxSize = 250/7;
+          
           let x = i*boxSize%canvasWidth;
           let y = floor(i*boxSize/canvasWidth)*boxSize;
           fill(velocity);
