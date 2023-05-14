@@ -150,6 +150,7 @@
     // on difficulty change, populate target velocity combobox
     difficultySelect.addEventListener('change', (e) => {
       window.selectedDifficulty = e.target.value;
+      window.selectedTargetVelocity = 0;
       populateVelocityCombobox(window.selectedDifficulty);
     });
     // initialize target velocity combobox
